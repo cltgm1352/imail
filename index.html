@@ -43,7 +43,7 @@
       width: 320px;
       height: 220px;
       box-sizing: border-box;
-      background: none; /* 背景なし */
+      background: none;
       z-index: 100;
       overflow: hidden;
       transition: top 0.5s ease;
@@ -63,9 +63,9 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      border-radius: 0; /* 角丸なし */
-      box-shadow: none; /* 影なし */
-      filter: none; /* 加工なし */
+      border-radius: 0;
+      box-shadow: none;
+      filter: none;
     }
 
     @keyframes slideDown {
@@ -97,16 +97,19 @@
       align-items: center;
       font-size: 20px;
       color: #d93025;
+      margin-bottom: 20px;
+      user-select: none;
     }
 
     .sidebar-title img {
       width: 24px;
       height: 24px;
-      margin-right: 0; /* iを削除したためマージンなし */
+      margin-right: 8px;
     }
 
     .sidebar-title span {
-      display: none; /* iは削除して文字も非表示 */
+      color: #888;
+      font-weight: 500;
     }
 
     .sidebar ul {
@@ -119,6 +122,12 @@
       padding: 10px;
       cursor: pointer;
       color: #333;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    .sidebar li:hover {
+      background-color: #f1f3f4;
     }
 
     .sidebar .active {
@@ -145,6 +154,8 @@
       margin-bottom: 10px;
       cursor: pointer;
       transition: background 0.2s;
+      user-select: none;
+      border-radius: 6px;
     }
 
     #email-list li:hover {
@@ -159,8 +170,11 @@
 
     .avatar {
       width: 40px;
+      height: 40px;
       border-radius: 50%;
       margin-right: 10px;
+      background: #ccc; /* placeholder */
+      object-fit: cover;
     }
 
     .account-name {
@@ -173,6 +187,8 @@
       padding: 20px;
       border: 1px solid #ccc;
       line-height: 1.6;
+      border-radius: 6px;
+      white-space: pre-line;
     }
 
     .email-content a {
@@ -198,10 +214,15 @@
       align-items: center;
       text-align: center;
       padding: 40px;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
     }
 
     .alert-box {
       max-width: 600px;
+      z-index: 2;
+      position: relative;
     }
 
     .alert-box .warning {
@@ -222,6 +243,71 @@
     .disclaimer {
       font-size: 14px;
       color: #ccc;
+    }
+
+    /* 砂嵐エフェクト */
+    #static-noise {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.15),
+        rgba(255,255,255,0.15) 1px,
+        rgba(0,0,0,0.15) 1px,
+        rgba(0,0,0,0.15) 2px
+      );
+      animation: staticNoise 0.15s infinite;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 5;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes staticNoise {
+      0% { background-position: 0 0; }
+      100% { background-position: 100px 100px; }
+    }
+
+    /* 真っ暗画面 */
+    #black-screen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    #black-screen.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #black-screen button {
+      margin-top: 30px;
+      padding: 12px 28px;
+      background-color: #d93025;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s;
+    }
+
+    #black-screen button:hover {
+      background-color: #a9231a;
     }
   </style>
 </head>
@@ -245,6 +331,7 @@
     <aside class="sidebar">
       <div class="sidebar-title">
         <img src="i mail-logo背景なし.png" alt="i Mail アイコン" />
+        <span>Mail</span>
       </div>
       <ul>
         <li class="active">受信トレイ</li>
@@ -273,62 +360,156 @@
             Hamazon primeの会費のお支払いにご指定いただいたお客様のお支払い方法が承認されないため、<br/>
             Hamazon primeの会費(税込1100円)をご請求できませんでした。<br/>
             現在、プライム会員の特典はご利用いただけません。<br/>
-            <strong>3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。</strong><br/>
-            <a href="#" id="fake-link">▶︎ 今すぐお支払い方法を更新</a><br/>
-            <span class="fake-url">https://hamazon.co.jp-nisehonnmonodesuyo</span>
+            <strong>3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。</strong>
+          </p>
+          <p>
+            ▶︎ <a href="https://hamazon.co.jp-nisehonnmonodesuyo" target="_blank" rel="noopener noreferrer">今すぐお支払い方法</a>
           </p>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- 警告画面 -->
+  <!-- 注意喚起画面 -->
   <div id="alert-screen">
     <div class="alert-box">
-      <h1 class="warning">注意</h1>
-      <p class="message">
-        このようなメールが届いたら、<strong>リンクをクリックしないでください。</strong><br/>
+      <div class="warning">注意</div>
+      <div class="message">
+        このようなメールが届いたら、リンクをクリックはしないでください。<br/>
         また、「法的措置」などという言葉を使ってリンクをクリックするように焦らせてきます。
-      </p>
+      </div>
       <div class="spacer"></div>
-      <p class="disclaimer">
+      <div class="disclaimer">
         このメールなどは、全てフィクションです。<br/>
         実際に存在するものではありません。このサイトも安全です。
-      </p>
+      </div>
+    </div>
+    <div id="static-noise"></div>
+    <div id="black-screen">
+      <button id="restart-btn">もう一度</button>
     </div>
   </div>
 
   <script>
-    window.addEventListener("load", () => {
-      // ローディング終了
+    const loadingScreen = document.getElementById('loading-screen');
+    const notification = document.getElementById('notification');
+    const mainUI = document.getElementById('main-ui');
+    const emailList = document.getElementById('email-list');
+    const inboxView = document.getElementById('inbox-view');
+    const emailDetail = document.getElementById('email-detail');
+    const alertScreen = document.getElementById('alert-screen');
+    const staticNoise = document.getElementById('static-noise');
+    const blackScreen = document.getElementById('black-screen');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // メールデータ
+    const emailData = {
+      from: 'info@hamazon.jp.nise.com',
+      subject: 'Hamazon primeをご利用いただきありがとうございます',
+      body: `Hamazon primeの会費のお支払いにご指定いただいたお客様のお支払い方法が承認されないため、
+Hamazon primeの会費(税込1100円)をご請求できませんでした。
+現在、プライム会員の特典はご利用いただけません。
+3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。`,
+      link: 'https://hamazon.co.jp-nisehonnmonodesuyo'
+    };
+
+    // 初期化関数
+    function init() {
+      loadingScreen.style.display = 'flex';
+      notification.style.top = '-220px';
+      notification.classList.remove('show', 'hide');
+      notification.style.display = 'none';
+      mainUI.style.display = 'none';
+      alertScreen.style.display = 'none';
+      staticNoise.style.opacity = '0';
+      blackScreen.classList.remove('visible');
+      emailList.innerHTML = '';
+      inboxView.style.display = 'block';
+      emailDetail.style.display = 'none';
+    }
+
+    // メール一覧にメール追加
+    function addEmailToList() {
+      const li = document.createElement('li');
+      li.textContent = emailData.subject;
+      li.title = `${emailData.from}\n${emailData.subject}`;
+      li.addEventListener('click', () => {
+        showEmailDetail();
+      });
+      emailList.appendChild(li);
+    }
+
+    // メール詳細表示
+    function showEmailDetail() {
+      inboxView.style.display = 'none';
+      emailDetail.style.display = 'block';
+    }
+
+    // 通知表示
+    function showNotification() {
+      notification.style.display = 'block';
+      notification.classList.add('show');
+      notification.style.top = '20px';
+
+      // 3秒後に非表示
       setTimeout(() => {
-        document.getElementById("loading-screen").style.display = "none";
-        document.getElementById("main-ui").style.display = "flex";
-
-        // 1秒後：通知＋メール表示
+        notification.classList.remove('show');
+        notification.classList.add('hide');
+        // アニメ終了後非表示に
         setTimeout(() => {
-          const notification = document.getElementById("notification");
-          notification.classList.add("show");
+          notification.style.display = 'none';
+        }, 500);
+      }, 3000);
+    }
 
-          const emailList = document.getElementById("email-list");
-          const li = document.createElement("li");
-          li.textContent = "Hamazon primeをご利用いただきありがとうございます";
-          li.addEventListener("click", () => {
-            document.getElementById("inbox-view").style.display = "none";
-            document.getElementById("email-detail").style.display = "block";
-          });
-          emailList.appendChild(li);
+    // 砂嵐スタート
+    function startStaticNoise() {
+      staticNoise.style.opacity = '1';
+    }
 
-          // 2秒後：通知を非表示にアニメーションで
+    // 砂嵐停止
+    function stopStaticNoise() {
+      staticNoise.style.opacity = '0';
+    }
+
+    // 注意喚起画面の表示と砂嵐・黒画面遷移処理
+    function showAlertScreen() {
+      alertScreen.style.display = 'flex';
+
+      // 数秒後に砂嵐開始
+      setTimeout(() => {
+        startStaticNoise();
+
+        // 2秒後に砂嵐終了して黒画面表示
+        setTimeout(() => {
+          stopStaticNoise();
+          blackScreen.classList.add('visible');
+        }, 2000);
+
+      }, 4000);
+    }
+
+    // もう一度ボタンクリックでリセット
+    restartBtn.addEventListener('click', () => {
+      alertScreen.style.display = 'none';
+      blackScreen.classList.remove('visible');
+      init();
+
+      // ローディング表示
+      loadingScreen.style.display = 'flex';
+
+      // 2秒後にローディング終了、メイン表示
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        mainUI.style.display = 'flex';
+
+        // 1秒後に通知表示
+        setTimeout(() => {
+          showNotification();
+
+          // 2秒後にメール受信（一覧追加）
           setTimeout(() => {
-            notification.classList.remove("show");
-            notification.classList.add("hide");
-
-            notification.addEventListener("animationend", () => {
-              notification.classList.remove("hide");
-              notification.style.display = "none";
-            }, { once: true });
-
+            addEmailToList();
           }, 2000);
 
         }, 1000);
@@ -336,14 +517,33 @@
       }, 2000);
     });
 
-    // フェイクリンククリックで警告へ
-    document.addEventListener("DOMContentLoaded", () => {
-      const fakeLink = document.getElementById("fake-link");
-      fakeLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        document.getElementById("main-ui").style.display = "none";
-        document.getElementById("alert-screen").style.display = "flex";
-      });
+    // ページロード時
+    window.addEventListener('load', () => {
+      init();
+
+      // ローディング表示2秒
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        mainUI.style.display = 'flex';
+
+        // 1秒後に通知表示
+        setTimeout(() => {
+          showNotification();
+
+          // 2秒後にメール受信（一覧追加）
+          setTimeout(() => {
+            addEmailToList();
+
+            // 3秒後に注意喚起画面表示
+            setTimeout(() => {
+              showAlertScreen();
+            }, 3000);
+
+          }, 2000);
+
+        }, 1000);
+
+      }, 2000);
     });
   </script>
 </body>
