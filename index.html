@@ -11,7 +11,7 @@
       background-color: #f1f3f4;
     }
 
-    /* ローディング画面 */
+    /* ===== ローディング画面 ===== */
     #loading-screen {
       position: fixed;
       top: 0; left: 0;
@@ -21,20 +21,21 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 999;
     }
 
     .loading-logo {
-      width: 60px;
-      animation: spin 1.2s linear infinite;
+      width: 40px;
+      animation: grow 2s ease-out forwards;
       opacity: 0.8;
     }
 
-    @keyframes spin {
-      0%   { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes grow {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    /* 通知 */
+    /* ===== 通知 ===== */
     .notification {
       position: fixed;
       top: -100px;
@@ -51,7 +52,7 @@
       width: 300px;
     }
 
-    /* メインレイアウト */
+    /* ===== メイン画面構成 ===== */
     #main-ui {
       display: flex;
       height: 100vh;
@@ -146,7 +147,7 @@
       display: block;
     }
 
-    /* 警告画面 */
+    /* ===== 警告画面 ===== */
     #alert-screen {
       background-color: #111;
       color: white;
@@ -255,35 +256,36 @@
 
   <script>
     window.addEventListener("load", () => {
-      // ローディング終了
+      // ローディング終了 → メイン画面表示
       setTimeout(() => {
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("main-ui").style.display = "flex";
 
-        // 通知表示（2秒後）
+        // 1秒後に通知＆メール追加
         setTimeout(() => {
           const notification = document.getElementById("notification");
           notification.classList.add("show");
 
-          // 新着メール追加（さらに2秒後）
+          const emailList = document.getElementById("email-list");
+          const li = document.createElement("li");
+          li.textContent = "Hamazon primeをご利用いただきありがとうございます";
+          li.addEventListener("click", () => {
+            document.getElementById("inbox-view").style.display = "none";
+            document.getElementById("email-detail").style.display = "block";
+          });
+          emailList.appendChild(li);
+
+          // 通知は3秒後に非表示
           setTimeout(() => {
             notification.classList.remove("show");
-            const emailList = document.getElementById("email-list");
-            const li = document.createElement("li");
-            li.textContent = "Hamazon primeをご利用いただきありがとうございます";
-            li.addEventListener("click", () => {
-              document.getElementById("inbox-view").style.display = "none";
-              document.getElementById("email-detail").style.display = "block";
-            });
-            emailList.appendChild(li);
-          }, 2000);
+          }, 3000);
 
-        }, 2000);
+        }, 1000); // 1秒後に通知表示
 
       }, 2000); // ローディング時間
     });
 
-    // 偽リンクをクリックしたら警告画面へ
+    // 偽リンククリックで警告画面へ
     document.addEventListener("DOMContentLoaded", () => {
       const fakeLink = document.getElementById("fake-link");
       fakeLink.addEventListener("click", (e) => {
