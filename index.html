@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>i Mail</title>
-  <link rel="icon" href="i mail-logo背景なし.png" type="image/png">
+  <link rel="icon" href="i mail-logo背景なし.png" type="image/png" />
   <style>
     body {
       margin: 0;
@@ -11,7 +11,7 @@
       background-color: #f1f3f4;
     }
 
-    /* ===== ローディング画面 ===== */
+    /* ローディング画面 */
     #loading-screen {
       position: fixed;
       top: 0; left: 0;
@@ -21,7 +21,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 999;
+      z-index: 9999;
     }
 
     .loading-logo {
@@ -35,26 +35,30 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* ===== 通知 ===== */
+    /* 通知 */
     .notification {
       position: fixed;
-      top: -100px;
+      top: -200px;
       right: 20px;
       transition: top 0.5s ease;
-      z-index: 1000;
+      z-index: 100;
+      display: none;
     }
 
     .notification.show {
       top: 20px;
+      display: block;
     }
 
     .notification img {
-      width: 300px;
+      width: 320px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
-    /* ===== メイン画面構成 ===== */
+    /* メインUI */
     #main-ui {
-      display: flex;
+      display: none;
       height: 100vh;
     }
 
@@ -65,10 +69,17 @@
       padding: 20px;
     }
 
-    .sidebar h2 {
-      margin-top: 0;
+    .sidebar-title {
+      display: flex;
+      align-items: center;
       font-size: 20px;
       color: #d93025;
+    }
+
+    .sidebar-title img {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
     }
 
     .sidebar ul {
@@ -147,7 +158,7 @@
       display: block;
     }
 
-    /* ===== 警告画面 ===== */
+    /* 警告画面 */
     #alert-screen {
       background-color: #111;
       color: white;
@@ -193,13 +204,19 @@
 
   <!-- 通知 -->
   <div id="notification" class="notification">
-    <img src="https://lh3.googleusercontent.com/pw/AP1GczOYemuu6F9EyEPQ_f0_aX_eN5q7rthtI8yJynnQ2dHZr02MuAonYsUdlGA9sjnPJsPLfE-ApxYzSCScxX7f28d-5MbT2VkYVw9_Zz4VPGjOyoEKP7FL-5276d1GTggbCXiT9Su2EuFL-rz107Dsq1DFxC1kixIlCgKfgQMABeeom4mEepp0lmuwbi_jN0OT2AlA_pUYhNi756bVwdqG1cpTeCOAn1yeNb4PQig_0TKLpAmSH_MARnEflkjaGEjml49MJYr49_iu0Rp2Ogd_FkIUshFcm_5ISbX1eiC_kxEUpUwK8Q8NAKhNMzt1qm_NDYemBEKUrSh4Cbu1tBfHjPs4oZULJL1M0Ik0w_wpPTHWnBJathaL8IAeAp9zu88hJYNuuJHJ0B4thGg8iQDyJo11N5Js5V_HZ913S614z9DnkdU7zb1LukTW-B8wUn91FNQZhnxMu7CKmiklh7UlqdaNDL1zgMmZn_mSZnXbyLcJhoglouQGI9YVMN6sgieA_NTMvZy1TebzuB_MyN9hUiuxPxdFnwqKjH1alqGD5ysrDulVsHXBKe-xL9_rP2GuYq5PCgBzqYf-GCtgrHRzQfe6XVvuA6NWAUT94LgA-DUIr-myVmh1oPDMHP512aQrFmgfFUXbHmNrIYsECZeQbu1LUuK3vx5kWDdksCwF_U8TmbW1vGcwDmd1yNgIj3tqkDIMi71cN2wPiZr7xZyQF_RB2C_2bBPLT_T-CkXnTyNmIGAo01BFFCGaJbcV7UWffqOGGNKT_V_qmSg2hkulI60_JGdAPes3nGm6tTTgJRiXIrBn0EbEgR-BLIrxqhz7sr6s6s2jGV4XrqKiVuDryU_-r-_3M6Ou9IJ9N7FTed6MNyzqdHPMod2CqdPBuP4NGwaFQQgyEEm186w38g=w391-h220-no?authuser=0" alt="通知" />
+    <img
+      src="https://lh3.googleusercontent.com/pw/AP1GczOYemuu6F9EyEPQ_f0_aX_eN5q7rthtI8yJynnQ2dHZr02MuAonYsUdlGA9sjnPJsPLfE-ApxYzSCScxX7f28d-5MbT2VkYVw9_Zz4VPGjOyoEKP7FL-5276d1GTggbCXiT9Su2EuFL-rz107Dsq1DFxC1kixIlCgKfgQMABeeom4mEepp0lmuwbi_jN0OT2AlA_pUYhNi756bVwdqG1cpTeCOAn1yeNb4PQig_0TKLpAmSH_MARnEflkjaGEjml49MJYr49_iu0Rp2Ogd_FkIUshFcm_5ISbX1eiC_kxEUpUwK8Q8NAKhNMzt1qm_NDYemBEKUrSh4Cbu1tBfHjPs4oZULJL1M0Ik0w_wpPTHWnBJathaL8IAeAp9zu88hJYNuuJHJ0B4thGg8iQDyJo11N5Js5V_HZ913S614z9DnkdU7zb1LukTW-B8wUn91FNQZhnxMu7CKmiklh7UlqdaNDL1zgMmZn_mSZnXbyLcJhoglouQGI9YVMN6sgieA_NTMvZy1TebzuB_MyN9hUiuxPxdFnwqKjH1alqGD5ysrDulVsHXBKe-xL9_rP2GuYq5PCgBzqYf-GCtgrHRzQfe6XVvuA6NWAUT94LgA-DUIr-myVmh1oPDMHP512aQrFmgfFUXbHmNrIYsECZeQbu1LUuK3vx5kWDdksCwF_U8TmbW1vGcwDmd1yNgIj3tqkDIMi71cN2wPiZr7xZyQF_RB2C_2bBPLT_T-CkXnTyNmIGAo01BFFCGaJbcV7UWffqOGGNKT_V_qmSg2hkulI60_JGdAPes3nGm6tTTgJRiXIrBn0EbEgR-BLIrxqhz7sr6s6s2jGV4XrqKiVuDryU_-r-_3M6Ou9IJ9N7FTed6MNyzqdHPMod2CqdPBuP4NGwaFQQgyEEm186w38g=w391-h220-no?authuser=0"
+      alt="通知画像"
+    />
   </div>
 
   <!-- メイン画面 -->
-  <div id="main-ui" style="display: none;">
+  <div id="main-ui">
     <aside class="sidebar">
-      <h2>i Mail</h2>
+      <div class="sidebar-title">
+        <img src="i mail-logo背景なし.png" alt="i Mail アイコン" />
+        <span>i Mail</span>
+      </div>
       <ul>
         <li class="active">受信トレイ</li>
         <li>スター付き</li>
@@ -212,9 +229,7 @@
     <main class="content">
       <section id="inbox-view">
         <h3>受信トレイ</h3>
-        <ul id="email-list">
-          <!-- メール一覧にJSで追加 -->
-        </ul>
+        <ul id="email-list"></ul>
       </section>
 
       <section id="email-detail" style="display: none;">
@@ -226,7 +241,7 @@
           <p><strong>差出人：</strong>info@hamazon.jp.nise.com</p>
           <p><strong>件名：</strong>Hamazon primeをご利用いただきありがとうございます</p>
           <p>
-            Hamazon primeの会費のお支払いにご指定いただいたお客、様のお支払い方法が承認されないため、<br/>
+            Hamazon primeの会費のお支払いにご指定いただいたお客様のお支払い方法が承認されないため、<br/>
             Hamazon primeの会費(税込1100円)をご請求できませんでした。<br/>
             現在、プライム会員の特典はご利用いただけません。<br/>
             <strong>3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。</strong><br/>
@@ -256,12 +271,12 @@
 
   <script>
     window.addEventListener("load", () => {
-      // ローディング終了 → メイン画面表示
+      // ローディング終了
       setTimeout(() => {
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("main-ui").style.display = "flex";
 
-        // 1秒後に通知＆メール追加
+        // 1秒後：通知＋メール表示
         setTimeout(() => {
           const notification = document.getElementById("notification");
           notification.classList.add("show");
@@ -275,17 +290,17 @@
           });
           emailList.appendChild(li);
 
-          // 通知は3秒後に非表示
+          // さらに2秒後：通知を非表示
           setTimeout(() => {
             notification.classList.remove("show");
-          }, 3000);
+          }, 2000);
 
-        }, 1000); // 1秒後に通知表示
+        }, 1000); // ローディング後1秒で通知
 
-      }, 2000); // ローディング時間
+      }, 2000); // ローディング2秒
     });
 
-    // 偽リンククリックで警告画面へ
+    // フェイクリンククリックで警告へ
     document.addEventListener("DOMContentLoaded", () => {
       const fakeLink = document.getElementById("fake-link");
       fakeLink.addEventListener("click", (e) => {
