@@ -2,571 +2,353 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>i Mail - スパムメール注意喚起</title>
+  <title>i Mail</title>
+  <link rel="icon" href="i mail-logo背景なし.png" type="image/png" />
   <style>
-    /* リセット */
-    * {
-      box-sizing: border-box;
+    body {
       margin: 0;
-      padding: 0;
-    }
-
-    body, html {
-      height: 100%;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff;
-      color: #202124;
-      overflow: hidden;
-    }
-
-    a {
-      color: #1a73e8;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f1f3f4;
     }
 
     /* ローディング画面 */
     #loading-screen {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #fff;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
       display: flex;
-      align-items: center;
       justify-content: center;
-      z-index: 1000;
-      flex-direction: column;
+      align-items: center;
+      z-index: 9999;
     }
 
-    /* Gmail風ローディングアニメーション */
-    .loader {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 6px solid #e0e0e0;
-      border-top-color: #1a73e8;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
+    .loading-logo {
+      width: 40px;
+      animation: grow 2s ease-out forwards;
+      opacity: 0.8;
     }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+    @keyframes grow {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 通知 */
+    .notification {
+      position: fixed;
+      top: -220px;
+      right: 20px;
+      width: 320px;
+      height: 220px;
+      box-sizing: border-box;
+      background: none; /* 背景なし */
+      z-index: 100;
+      overflow: hidden;
+      transition: top 0.5s ease;
+      display: none;
+    }
+
+    .notification.show {
+      display: block;
+      animation: slideDown 0.5s forwards;
+    }
+
+    .notification.hide {
+      animation: slideUp 0.5s forwards;
+    }
+
+    .notification img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0; /* 角丸なし */
+      box-shadow: none; /* 影なし */
+      filter: none; /* 加工なし */
+    }
+
+    @keyframes slideDown {
+      from { top: -220px; }
+      to { top: 20px; }
+    }
+
+    @keyframes slideUp {
+      from { top: 20px; }
+      to { top: -220px; }
     }
 
     /* メインUI */
     #main-ui {
-      display: flex;
+      display: none;
       height: 100vh;
-      overflow: hidden;
+      display: flex;
     }
 
-    /* 左サイドバー */
-    #sidebar {
-      width: 240px;
+    .sidebar {
+      width: 220px;
+      background-color: #ffffff;
       border-right: 1px solid #ddd;
-      display: flex;
-      flex-direction: column;
       padding: 20px;
     }
 
-    #logo {
+    .sidebar-title {
       display: flex;
       align-items: center;
-      margin-bottom: 20px;
-      user-select: none;
+      font-size: 20px;
+      color: #d93025;
     }
 
-    #logo img {
+    .sidebar-title img {
       width: 24px;
       height: 24px;
-      object-fit: contain;
-      margin-right: 8px;
+      margin-right: 8px; /* 画像と文字の間にスペース */
     }
 
-    #logo span {
-      color: #757575;
-      font-weight: 600;
-      font-size: 18px;
-      letter-spacing: 0.05em;
+    .sidebar-title span {
+      display: inline-block;
+      color: #888888; /* 灰色 */
+      font-size: 20px;
+      font-weight: normal;
+      font-family: 'Segoe UI', sans-serif;
     }
 
-    #folders {
-      flex-grow: 1;
-      font-size: 14px;
-      color: #5f6368;
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
     }
 
-    #folders div {
-      padding: 8px 12px;
+    .sidebar li {
+      padding: 10px;
       cursor: pointer;
-      border-radius: 4px;
-      user-select: none;
-      transition: background-color 0.15s;
+      color: #333;
     }
 
-    #folders div:hover {
-      background-color: #f1f3f4;
+    .sidebar .active {
+      font-weight: bold;
+      background-color: #fce8e6;
     }
 
-    /* メインコンテンツ */
-    #content {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* 上部バー */
-    #top-bar {
-      height: 48px;
-      border-bottom: 1px solid #ddd;
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      background-color: #f5f5f5;
-      user-select: none;
-    }
-
-    #account-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-      color: #202124;
-    }
-
-    #account-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    /* メール一覧 */
-    #inbox-view {
-      flex-grow: 1;
+    .content {
+      flex: 1;
+      padding: 20px;
       overflow-y: auto;
-      background: #fff;
     }
 
     #email-list {
       list-style: none;
+      padding: 0;
+      margin: 0;
     }
 
     #email-list li {
-      padding: 14px 20px;
-      border-bottom: 1px solid #eee;
+      padding: 15px;
+      background: white;
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
       cursor: pointer;
-      transition: background-color 0.15s;
+      transition: background 0.2s;
     }
 
     #email-list li:hover {
-      background-color: #f1f3f4;
+      background: #f1f1f1;
     }
 
-    /* メール詳細 */
-    #email-detail {
-      display: none;
-      flex-grow: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background: #fff;
+    .email-header-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
     }
 
-    #email-detail h2 {
-      margin-bottom: 6px;
-      font-weight: 700;
-      color: #202124;
-    }
-
-    #email-detail .from {
-      margin-bottom: 12px;
-      color: #5f6368;
-      font-size: 14px;
-    }
-
-    #email-detail p {
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-
-    #email-detail a {
-      color: #d93025; /* 赤字 */
-      font-weight: 600;
-    }
-
-    /* 通知 */
-    #notification {
-      position: fixed;
-      top: -220px;
-      right: 20px;
-      width: 350px;
-      background: #fff;
-      border: 1px solid #ccc;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      border-radius: 8px;
-      padding: 12px 16px;
-      display: none;
-      z-index: 2000;
-      cursor: default;
-      font-size: 14px;
-      user-select: none;
-      transition: top 0.4s ease, opacity 0.4s ease;
-      opacity: 0;
-    }
-
-    #notification.show {
-      top: 20px;
-      opacity: 1;
-      display: block;
-    }
-
-    #notification.hide {
-      top: -220px;
-      opacity: 0;
-    }
-
-    #notification img {
-      width: 48px;
-      height: 28px;
-      object-fit: contain;
-      vertical-align: middle;
+    .avatar {
+      width: 40px;
+      border-radius: 50%;
       margin-right: 10px;
     }
 
-    #notification .text {
-      display: inline-block;
-      vertical-align: middle;
-      max-width: 270px;
-      color: #202124;
+    .account-name {
+      font-weight: bold;
+      font-size: 16px;
     }
 
-    /* 注意喚起画面 */
+    .email-content {
+      background: white;
+      padding: 20px;
+      border: 1px solid #ccc;
+      line-height: 1.6;
+    }
+
+    .email-content a {
+      color: #1a73e8;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .fake-url {
+      font-size: 13px;
+      color: #777;
+      margin-top: 5px;
+      display: block;
+    }
+
+    /* 警告画面 */
     #alert-screen {
-      position: fixed;
-      inset: 0;
-      background: #fff;
+      background-color: #111;
+      color: white;
+      height: 100vh;
       display: none;
-      align-items: center;
       justify-content: center;
-      flex-direction: column;
-      z-index: 3000;
-      user-select: none;
-    }
-
-    #alert-screen.active {
-      display: flex;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
     }
 
     .alert-box {
-      max-width: 480px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-      padding: 30px 32px;
-      text-align: center;
-      color: #202124;
+      max-width: 600px;
     }
 
     .alert-box .warning {
-      font-weight: 700;
-      color: #d93025;
-      font-size: 24px;
-      margin-bottom: 16px;
+      color: red;
+      font-size: 36px;
+      margin-bottom: 20px;
     }
 
     .alert-box .message {
-      font-size: 16px;
-      line-height: 1.5;
-      margin-bottom: 24px;
+      font-size: 18px;
+      margin-bottom: 40px;
     }
 
-    .alert-box .disclaimer {
+    .spacer {
+      height: 80px;
+    }
+
+    .disclaimer {
       font-size: 14px;
-      color: #5f6368;
-      margin-top: 20px;
-      user-select: text;
-    }
-
-    /* 砂嵐エフェクト */
-    #static-noise {
-      position: fixed;
-      inset: 0;
-      background: black;
-      pointer-events: none;
-      opacity: 0;
-      z-index: 3100;
-      animation: staticNoiseAnim 0.2s steps(10) infinite;
-      mix-blend-mode: screen;
-    }
-
-    @keyframes staticNoiseAnim {
-      0% {
-        background-position: 0 0;
-      }
-      100% {
-        background-position: 100% 100%;
-      }
-    }
-
-    /* 実際の砂嵐パターン（CSSで生成） */
-    #static-noise {
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
-      background-position: 0 0, 25px 25px;
-      background-size: 50px 50px;
-    }
-
-    /* 黒画面 */
-    #black-screen {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3200;
-      user-select: none;
-      flex-direction: column;
-    }
-
-    #black-screen.visible {
-      display: flex;
-    }
-
-    #restart-btn {
-      padding: 12px 24px;
-      font-size: 16px;
-      background: #1a73e8;
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s;
-    }
-
-    #restart-btn:hover {
-      background-color: #1669c1;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
 
-  <!-- ローディング画面 -->
+  <!-- ローディング -->
   <div id="loading-screen">
-    <div class="loader"></div>
+    <img src="i mail-logo背景なし.png" alt="i Mail ロゴ" class="loading-logo" />
   </div>
 
-  <!-- メインUI -->
-  <div id="main-ui" style="display:none;">
-    <aside id="sidebar">
-      <div id="logo">
-        <img src="i mail-logo背景なし.png" alt="i Mail ロゴ" />
+  <!-- 通知 -->
+  <div id="notification" class="notification">
+    <img
+      src="https://lh3.googleusercontent.com/pw/AP1GczOYemuu6F9EyEPQ_f0_aX_eN5q7rthtI8yJynnQ2dHZr02MuAonYsUdlGA9sjnPJsPLfE-ApxYzSCScxX7f28d-5MbT2VkYVw9_Zz4VPGjOyoEKP7FL-5276d1GTggbCXiT9Su2EuFL-rz107Dsq1DFxC1kixIlCgKfgQMABeeom4mEepp0lmuwbi_jN0OT2AlA_pUYhNi756bVwdqG1cpTeCOAn1yeNb4PQig_0TKLpAmSH_MARnEflkjaGEjml49MJYr49_iu0Rp2Ogd_FkIUshFcm_5ISbX1eiC_kxEUpUwK8Q8NAKhNMzt1qm_NDYemBEKUrSh4Cbu1tBfHjPs4oZULJL1M0Ik0w_wpPTHWnBJathaL8IAeAp9zu88hJYNuuJHJ0B4thGg8iQDyJo11N5Js5V_HZ913S614z9DnkdU7zb1LukTW-B8wUn91FNQZhnxMu7CKmiklh7UlqdaNDL1zgMmZn_mSZnXbyLcJhoglouQGI9YVMN6sgieA_NTMvZy1TebzuB_MyN9hUiuxPxdFnwqKjH1alqGD5ysrDulVsHXBKe-xL9_rP2GuYq5PCgBzqYf-GCtgrHRzQfe6XVvuA6NWAUT94LgA-DUIr-myVmh1oPDMHP512aQrFmgfFUXbHmNrIYsECZeQbu1LUuK3vx5kWDdksCwF_U8TmbW1vGcwDmd1yNgIj3tqkDIMi71cN2wPiZr7xZyQF_RB2C_2bBPLT_T-CkXnTyNmIGAo01BFFCGaJbcV7UWffqOGGNKT_V_qmSg2hkulI60_JGdAPes3nGm6tTTgJRiXIrBn0EbEgR-BLIrxqhz7sr6s6s2jGV4XrqKiVuDryU_-r-_3M6Ou9IJ9N7FTed6MNyzqdHPMod2CqdPBuP4NGwaFQQgyEEm186w38g=w391-h220-no?authuser=0"
+      alt="通知画像"
+    />
+  </div>
+
+  <!-- メイン画面 -->
+  <div id="main-ui">
+    <aside class="sidebar">
+      <div class="sidebar-title">
+        <img src="i mail-logo背景なし.png" alt="i Mail アイコン" />
         <span>Mail</span>
       </div>
-      <div id="folders">
-        <div>受信トレイ</div>
-        <div>スター付き</div>
-        <div>送信済み</div>
-        <div>下書き</div>
-      </div>
+      <ul>
+        <li class="active">受信トレイ</li>
+        <li>スター付き</li>
+        <li>送信済み</li>
+        <li>迷惑メール</li>
+        <li>ゴミ箱</li>
+      </ul>
     </aside>
-    <section id="content">
-      <header id="top-bar">
-        <div id="account-info">
-          <img id="account-avatar" src="avatar.png" alt="アカウントアイコン" />
-          <div>i Mailアカウント</div>
+
+    <main class="content">
+      <section id="inbox-view">
+        <h3>受信トレイ</h3>
+        <ul id="email-list"></ul>
+      </section>
+
+      <section id="email-detail" style="display: none;">
+        <div class="email-header-bar">
+          <img src="avatar.png" alt="アバター" class="avatar" />
+          <span class="account-name">田中 太郎</span>
         </div>
-      </header>
-      <main>
-        <div id="inbox-view">
-          <ul id="email-list"></ul>
-        </div>
-        <div id="email-detail">
-          <h2>Hamazon primeをご利用いただきありがとうございます</h2>
-          <div class="from">info@hamazon.jp.nise.com</div>
+        <div class="email-content">
+          <p><strong>差出人：</strong>info@hamazon.jp.nise.com</p>
+          <p><strong>件名：</strong>Hamazon primeをご利用いただきありがとうございます</p>
           <p>
             Hamazon primeの会費のお支払いにご指定いただいたお客様のお支払い方法が承認されないため、<br/>
             Hamazon primeの会費(税込1100円)をご請求できませんでした。<br/>
             現在、プライム会員の特典はご利用いただけません。<br/>
-            3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。
-          </p>
-          <p>
-            ▶︎ <a href="https://hamazon.co.jp-nisehonnmonodesuyo">今すぐお支払い方法を更新</a>
+            <strong>3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。</strong><br/>
+            <a href="#" id="fake-link">▶︎ 今すぐお支払い方法を更新</a><br/>
+            <span class="fake-url">https://hamazon.co.jp-nisehonnmonodesuyo</span>
           </p>
         </div>
-      </main>
-    </section>
+      </section>
+    </main>
   </div>
 
-  <!-- 通知 -->
-  <div id="notification">
-    <img src="https://lh3.googleusercontent.com/pw/AP1GczOYemuu6F9EyEPQ_f0_aX_eN5q7rthtI8yJynnQ2dHZr02MuAonYsUdlGA9sjnPJsPLfE-ApxYzSCScxX7f28d-5MbT2VkYVw9_Zz4VPGjOyoEKP7FL-5276d1GTggbCXiT9Su2EuFL-rz107Dsq1DFxC1kixIlCgKfgQMABeeom4mEepp0lmuwbi_jN0OT2AlA_pUYhNi756bVwdqG1cpTeCOAn1yeNb4PQig_0TKLpAmSH_MARnEflkjaGEjml49MJYr49_iu0Rp2Ogd_FkIUshFcm_5ISbX1eiC_kxEUpUwK8Q8NAKhNMzt1qm_NDYemBEKUrSh4Cbu1tBfHjPs4oZULJL1M0Ik0w_wpPTHWnBJathaL8IAeAp9zu88hJYNuuJHJ0B4thGg8iQDyJo11N5Js5V_HZ913S614z9DnkdU7zb1LukTW-B8wUn91FNQZhnxMu7CKmiklh7UlqdaNDL1zgMmZn_mSZnXbyLcJhoglouQGI9YVMN6sgieA_NTMvZy1TebzuB_MyN9hUiuxPxdFnwqKjH1alqGD5ysrDulVsHXBKe-xL9_rP2GuYq5PCgBzqYf-GCtgrHRzQfe6XVvuA6NWAUT94LgA-DUIr-myVmh1oPDMHP512aQrFmgfFUXbHmNrIYsECZeQbu1LUuK3vx5kWDdksCwF_U8TmbW1vGcwDmd1yNgIj3tqkDIMi71cN2wPiZr7xZyQF_RB2C_2bBPLT_T-CkXnTyNmIGAo01BFFCGaJbcV7UWffqOGGNKT_V_qmSg2hkulI60_JGdAPes3nGm6tTTgJRiXIrBn0EbEgR-BLIrxqhz7sr6s6s2jGV4XrqKiVuDryU_-r-_3M6Ou9IJ9N7FTed6MNyzqdHPMod2CqdPBuP4NGwaFQQgyEEm186w38g=w391-h220-no?authuser=0" alt="i Mailから新たなメッセージ" />
-    <div class="text">i Mailから新たなメッセージ が届きました</div>
-  </div>
-
-  <!-- 注意喚起画面 -->
+  <!-- 警告画面 -->
   <div id="alert-screen">
     <div class="alert-box">
-      <div class="warning">注意</div>
-      <div class="message">
-        このようなメールが届いたら、リンクをクリックはしないでください。<br/>
+      <h1 class="warning">注意</h1>
+      <p class="message">
+        このようなメールが届いたら、<strong>リンクをクリックしないでください。</strong><br/>
         また、「法的措置」などという言葉を使ってリンクをクリックするように焦らせてきます。
-      </div>
+      </p>
       <div class="spacer"></div>
-      <div class="disclaimer">
+      <p class="disclaimer">
         このメールなどは、全てフィクションです。<br/>
         実際に存在するものではありません。このサイトも安全です。
-      </div>
+      </p>
     </div>
   </div>
 
-  <!-- 砂嵐 -->
-  <div id="static-noise"></div>
-
-  <!-- 黒画面 -->
-  <div id="black-screen">
-    <button id="restart-btn">もう一度</button>
-  </div>
-
   <script>
-    const loadingScreen = document.getElementById('loading-screen');
-    const notification = document.getElementById('notification');
-    const mainUI = document.getElementById('main-ui');
-    const emailList = document.getElementById('email-list');
-    const inboxView = document.getElementById('inbox-view');
-    const emailDetail = document.getElementById('email-detail');
-    const alertScreen = document.getElementById('alert-screen');
-    const staticNoise = document.getElementById('static-noise');
-    const blackScreen = document.getElementById('black-screen');
-    const restartBtn = document.getElementById('restart-btn');
-
-    // メールデータ
-    const emailData = {
-      from: 'info@hamazon.jp.nise.com',
-      subject: 'Hamazon primeをご利用いただきありがとうございます',
-      body: `Hamazon primeの会費のお支払いにご指定いただいたお客様のお支払い方法が承認されないため、
-Hamazon primeの会費(税込1100円)をご請求できませんでした。
-現在、プライム会員の特典はご利用いただけません。
-3日以内にお支払い方法を更新いただけない場合は法的措置を適用いたします。`,
-      link: 'https://hamazon.co.jp-nisehonnmonodesuyo'
-    };
-
-    function init() {
-      // 初期状態セット
-      loadingScreen.style.display = 'flex';
-      notification.style.display = 'none';
-      notification.classList.remove('show', 'hide');
-      notification.style.top = '-220px';
-      mainUI.style.display = 'none';
-      alertScreen.style.display = 'none';
-      staticNoise.style.opacity = '0';
-      blackScreen.classList.remove('visible');
-      blackScreen.style.display = 'none';
-
-      emailList.innerHTML = '';
-      inboxView.style.display = 'block';
-      emailDetail.style.display = 'none';
-    }
-
-    function addEmailToList() {
-      const li = document.createElement('li');
-      li.textContent = emailData.subject;
-      li.title = `${emailData.from}\n${emailData.subject}`;
-      li.addEventListener('click', () => {
-        showEmailDetail();
-      });
-      emailList.appendChild(li);
-    }
-
-    function showEmailDetail() {
-      inboxView.style.display = 'none';
-      emailDetail.style.display = 'block';
-    }
-
-    function showNotification() {
-      notification.style.display = 'block';
-      // アニメーションのためclass付け替え
-      notification.classList.remove('hide');
-      notification.classList.add('show');
-
-      // 3秒後に非表示に
+    window.addEventListener("load", () => {
+      // ローディング終了
       setTimeout(() => {
-        notification.classList.remove('show');
-        notification.classList.add('hide');
+        document.getElementById("loading-screen").style.display = "none";
+        document.getElementById("main-ui").style.display = "flex";
+
+        // 1秒後：通知＋メール表示
         setTimeout(() => {
-          notification.style.display = 'none';
-        }, 400);
-      }, 3000);
-    }
+          const notification = document.getElementById("notification");
+          notification.classList.add("show");
 
-    // 初期化と表示の流れ
-    window.onload = () => {
-      init();
+          const emailList = document.getElementById("email-list");
+          const li = document.createElement("li");
+          li.textContent = "Hamazon primeをご利用いただきありがとうございます";
+          li.addEventListener("click", () => {
+            document.getElementById("inbox-view").style.display = "none";
+            document.getElementById("email-detail").style.display = "block";
+          });
+          emailList.appendChild(li);
 
-      // 3秒後にローディング画面非表示、メイン表示
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        mainUI.style.display = 'flex';
-
-        addEmailToList();
-
-        // 1秒後に通知表示
-        setTimeout(() => {
-          showNotification();
-
-          // 5秒後に注意喚起画面表示
+          // 2秒後：通知を非表示にアニメーションで
           setTimeout(() => {
-            alertScreen.style.display = 'flex';
+            notification.classList.remove("show");
+            notification.classList.add("hide");
 
-            // 3秒後に砂嵐表示
-            setTimeout(() => {
-              staticNoise.style.opacity = '1';
+            notification.addEventListener("animationend", () => {
+              notification.classList.remove("hide");
+              notification.style.display = "none";
+            }, { once: true });
 
-              // 2秒後に黒画面表示し「もう一度」ボタンを出す
-              setTimeout(() => {
-                alertScreen.style.display = 'none';
-                staticNoise.style.opacity = '0';
-
-                blackScreen.style.display = 'flex';
-                blackScreen.classList.add('visible');
-              }, 2000);
-            }, 3000);
-
-          }, 5000);
+          }, 2000);
 
         }, 1000);
 
-      }, 3000);
-    };
+      }, 2000);
+    });
 
-    restartBtn.addEventListener('click', () => {
-      // 黒画面を閉じてローディングからやり直し
-      blackScreen.classList.remove('visible');
-      blackScreen.style.display = 'none';
-      init();
-
-      loadingScreen.style.display = 'flex';
-      mainUI.style.display = 'none';
-
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        mainUI.style.display = 'flex';
-        addEmailToList();
-
-        setTimeout(() => {
-          showNotification();
-          // また注意喚起は繰り返し表示しない（今回はここで止める）
-        }, 1000);
-      }, 3000);
+    // フェイクリンククリックで警告へ
+    document.addEventListener("DOMContentLoaded", () => {
+      const fakeLink = document.getElementById("fake-link");
+      fakeLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        document.getElementById("main-ui").style.display = "none";
+        document.getElementById("alert-screen").style.display = "flex";
+      });
     });
   </script>
 </body>
