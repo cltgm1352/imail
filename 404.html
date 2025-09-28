@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>404 Not Found</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Arial Black', Arial, sans-serif;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+  }
+
+  /* ロゴを上部に配置 */
+  header {
+    margin-top: 20px;
+  }
+
+  header img {
+    max-width: 200px;
+    height: auto;
+  }
+
+  /* 404の中央表示 */
+  .error-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .error-text {
+    font-size: 15vw;
+    font-weight: 900;
+    color: #FF4500;
+    user-select: none;
+    animation: bounce-color 3s ease-in-out infinite;
+  }
+
+  /* 面白いアニメーション：跳ねて色変わる */
+  @keyframes bounce-color {
+    0%, 100% {
+      transform: translateY(0);
+      color: #FF4500;
+      text-shadow: 0 0 10px #FF4500;
+    }
+    50% {
+      transform: translateY(-30px) scale(1.1);
+      color: #FFA500;
+      text-shadow: 0 0 20px #FFA500;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <img src="i mail-logo背景なし.png" alt="i mail logo" />
+</header>
+
+<div class="error-container">
+  <div class="error-text">404</div>
+</div>
+</body>
+</html>
