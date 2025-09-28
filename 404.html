@@ -1,54 +1,91 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>404 Not Found</title>
-<link rel="icon" href="i mail-logo背景なし.png" type="image/png" />
-<style>
-  body {
-    margin: 0;
-    font-family: 'Arial Black', Arial, sans-serif;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-  }
+  <meta charset="UTF-8" />
+  <title>404 - i Mail</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f1f3f4;
+      height: 100vh;
+      display: flex;
+    }
 
-  header {
-    margin-top: 20px;
-  }
+    .sidebar {
+      width: 220px;
+      background-color: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+    }
 
-  header img {
-    max-width: 150px; /* ここを小さく */
-    height: auto;
-  }
+    .sidebar-title {
+      display: flex;
+      align-items: center;
+      font-size: 20px;
+      color: #d93025;
+    }
 
-  .error-container {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
+    .sidebar-title img {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+    }
 
-  .error-text {
-    font-size: 15vw;
-    font-weight: 900;
-    color: #FF4500;
-    user-select: none;
-    text-shadow: 0 0 10px #FF4500;
-  }
-</style>
+    .sidebar-title span {
+      display: inline-block;
+      color: #888888;
+      font-size: 20px;
+      font-weight: normal;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .sidebar li {
+      padding: 10px;
+      cursor: pointer;
+      color: #333;
+    }
+
+    .sidebar .active {
+      font-weight: bold;
+      background-color: #fce8e6;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .content h2 {
+      font-size: 48px;
+      color: #d93025;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <img src="i mail-logo背景なし.png" alt="i mail logo" />
-</header>
+  <aside class="sidebar">
+    <div class="sidebar-title">
+      <img src="i mail-logo背景なし.png" alt="i Mail アイコン" />
+      <span>Mail</span>
+    </div>
+    <ul>
+      <li class="active">受信トレイ</li>
+      <li>スター付き</li>
+      <li>送信済み</li>
+      <li>迷惑メール</li>
+      <li>ゴミ箱</li>
+    </ul>
+  </aside>
 
-<div class="error-container">
-  <div class="error-text">404</div>
-</div>
+  <main class="content">
+    <h2>404</h2>
+  </main>
 </body>
 </html>
